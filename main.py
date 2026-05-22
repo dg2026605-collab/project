@@ -5,8 +5,10 @@ c = box(pos = vec(-1.5,-0.45,0),size = vec(0.1,3,1))
 d = box(pos = vec(0,-1,0),size = vec(3,0.1,1))
 e = box(pos = vec(0,-0.05,0),size = vec(3,0.1,1))
 f = box(pos = vec(0,-1.89,0),size = vec(3,0.1,1))
-text(text='Wonder', align='center',pos = vec(0,2,0),height = 0.5,axis = vec(1,0,0))
-t = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7))
+# text(text='Wonder', align='center',pos = vec(0,2,0),height = 0.5,axis = vec(1,0,0))
+tp = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
+rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
 stack = compound([a,b,c,d,e,f])
 stack.axis = vec(1,0,0)
 stack.pos.x = stack.pos.x + 6
@@ -19,3 +21,27 @@ box(pos = vec(-2.5,-0.45,0),size = vec(0.1,3,1))
 box(pos = vec(0,-1,0),size = vec(5,0.1,1))
 box(pos = vec(0,-0.05,0),size = vec(5,0.1,1))
 box(pos = vec(0,-1.89,0),size = vec(5,0.1,1))
+
+while True :
+    rate(100)
+    k = keysdown()
+    if 'd' in k :
+        r.pos.x = r.pos.x + 0.1
+    if 'a' in k :
+        r.pos.x = r.pos.x - 0.1
+    if 'w' in k :
+        r.pos.y = r.pos.y + 0.1
+    if 's' in k :
+        r.pos.y = r.pos.y - 0.1
+    if ' ' in k :
+        t.pos = vec(0,0,0)
+    if 'q' in k : 
+        r.pos.z = r.pos.z + 0.1
+    if 'e' in k : 
+        r.pos.z = r.pos.z - 0.1
+# while True : 
+#     rate(100)
+#     if mag(r.pos - tp.pos) < 2 : 
+#         r.color = color.red
+#         rp.color = color.green
+#         rp.pos.x += 1
