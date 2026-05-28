@@ -1,14 +1,38 @@
 Web VPython 3.2
+import random
+
 a = box(pos = vec(0,1,0),size = vec(3,0.1,1))
 b = box(pos = vec(1.5,-0.45,0),size = vec(0.1,3,1))
 c = box(pos = vec(-1.5,-0.45,0),size = vec(0.1,3,1))
 d = box(pos = vec(0,-1,0),size = vec(3,0.1,1))
 e = box(pos = vec(0,-0.05,0),size = vec(3,0.1,1))
 f = box(pos = vec(0,-1.89,0),size = vec(3,0.1,1))
-# text(text='Wonder', align='center',pos = vec(0,2,0),height = 0.5,axis = vec(1,0,0))
-tp = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+
+text(text='book shelf', align='center',pos = vec(0,1.7,0),height = 1,axis = vec(1,0,0))
+text(text='book truck', align='center',pos = vec(6,7,4),height = 1,axis = vec(1,0,0))
+# text(text='Wonder', align='center',pos = vec(6,7,4),height = 1,axis = vec(0,1,0))
+randomlist = [1,2,3]
+random.shuffle(randomlist)
+
+o = randomlist[0]
+p = randomlist[1]
+i = randomlist[2]
+
+
+
 r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
 rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
+r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
+rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
+k = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7))
+kp = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
+o = box(pos = vec(7,6.5,6),size = vec(0.7,0.9,0.7))
+op = box(pos = vec(7,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
+gp = box(pos = vec(-1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+ip = box(pos = vec(0,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+np = box(pos = vec(1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+tp = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+
 stack = compound([a,b,c,d,e,f])
 stack.axis = vec(1,0,0)
 stack.pos.x = stack.pos.x + 6
@@ -33,15 +57,13 @@ while True :
         r.pos.y = r.pos.y + 0.1
     if 's' in k :
         r.pos.y = r.pos.y - 0.1
-    if ' ' in k :
-        t.pos = vec(0,0,0)
     if 'q' in k : 
         r.pos.z = r.pos.z + 0.1
     if 'e' in k : 
         r.pos.z = r.pos.z - 0.1
-# while True : 
-#     rate(100)
-#     if mag(r.pos - tp.pos) < 2 : 
-#         r.color = color.red
-#         rp.color = color.green
-#         rp.pos.x += 1
+    if mag(r.pos - tp.pos) < 1 : 
+        r.color = color.red
+        rp.color = color.green
+    if mag(r.pos - tp.pos) < 1 : 
+        r.color = color.red
+        rp.color = color.green
