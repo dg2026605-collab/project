@@ -14,14 +14,6 @@ text(text='book truck', align='center',pos = vec(6,7,4),height = 1,axis = vec(1,
 randomlist = [1,2,3]
 random.shuffle(randomlist)
 
-o = randomlist[0]
-p = randomlist[1]
-i = randomlist[2]
-
-
-
-r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
-rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
 r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
 rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
 k = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7))
@@ -32,6 +24,26 @@ gp = box(pos = vec(-1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
 ip = box(pos = vec(0,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
 np = box(pos = vec(1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
 tp = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
+
+
+boxes=[r,k,o]
+
+m = randomlist[0]
+p = randomlist[1]
+l = randomlist[2]
+
+if o == 1:
+    r.color = color.cyan
+if p == 1:
+    k.color = color.cyan
+if m == 1:
+    o.color = color.cyan
+
+
+ix = 0
+    
+
+
 
 stack = compound([a,b,c,d,e,f])
 stack.axis = vec(1,0,0)
@@ -51,6 +63,7 @@ while True :
     k = keysdown()
     if 'd' in k :
         r.pos.x = r.pos.x + 0.1
+        boxes[ix].pos.x = boxes[ix].pos.x + 0.1
     if 'a' in k :
         r.pos.x = r.pos.x - 0.1
     if 'w' in k :
@@ -61,6 +74,9 @@ while True :
         r.pos.z = r.pos.z + 0.1
     if 'e' in k : 
         r.pos.z = r.pos.z - 0.1
+    if ' ' in k :
+        rate(10)
+        ix = (ix + 1) % 3
     if mag(r.pos - tp.pos) < 1 : 
         r.color = color.red
         rp.color = color.green
