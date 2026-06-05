@@ -34,6 +34,8 @@ l = randomlist[2]
 
 if l == 1:
     r.color = color.cyan
+    if m == 2:
+        
 if p == 1:
     v.color = color.cyan
 if m == 1:
@@ -75,8 +77,8 @@ while True :
     if 'e' in k : 
         r.pos.z = r.pos.z - 0.1
 #    if ' ' in k :
-        rate(10)
-        ix = (ix + 1) % 3
+#        rate(10)
+#        ix = (ix + 1) % 3
     if mag(r.pos - gp.pos) < 1 : 
         r.color = color.red
         rp.color = color.green
