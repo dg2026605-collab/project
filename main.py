@@ -16,8 +16,8 @@ random.shuffle(randomlist)
 
 r = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7))
 rp = box(pos = vec(5,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
-k = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7))
-kp = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
+v = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7))
+vp = box(pos = vec(6,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
 o = box(pos = vec(7,6.5,6),size = vec(0.7,0.9,0.7))
 op = box(pos = vec(7,6.5,6),size = vec(0.7,0.9,0.7),opacity = 0.5)
 gp = box(pos = vec(-1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
@@ -26,16 +26,16 @@ np = box(pos = vec(1,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
 tp = box(pos = vec(-2,0.5,0),size = vec(0.7,0.9,0.7),opacity = 0.5)
 
 
-boxes=[r,k,o]
+boxes=[r,v,o]
 
 m = randomlist[0]
 p = randomlist[1]
 l = randomlist[2]
 
-if o == 1:
+if l == 1:
     r.color = color.cyan
 if p == 1:
-    k.color = color.cyan
+    v.color = color.cyan
 if m == 1:
     o.color = color.cyan
 
@@ -62,24 +62,29 @@ while True :
     rate(100)
     k = keysdown()
     if 'd' in k :
-        r.pos.x = r.pos.x + 0.1
-        boxes[ix].pos.x = boxes[ix].pos.x + 0.1
+        o.pos.x = o.pos.x + 0.1
+        #boxes[ix].pos.x = boxes[ix].pos.x + 0.1
     if 'a' in k :
-        r.pos.x = r.pos.x - 0.1
+        o.pos.x = o.pos.x - 0.1
     if 'w' in k :
-        r.pos.y = r.pos.y + 0.1
+        o.pos.y = o.pos.y + 0.1
     if 's' in k :
-        r.pos.y = r.pos.y - 0.1
+        o.pos.y = o.pos.y - 0.1
     if 'q' in k : 
-        r.pos.z = r.pos.z + 0.1
+        o.pos.z = o.pos.z + 0.1
     if 'e' in k : 
-        r.pos.z = r.pos.z - 0.1
-    if ' ' in k :
+        o.pos.z = o.pos.z - 0.1
+#    if ' ' in k :
         rate(10)
         ix = (ix + 1) % 3
-    if mag(r.pos - tp.pos) < 1 : 
+    if mag(r.pos - gp.pos) < 1 : 
         r.color = color.red
         rp.color = color.green
-    if mag(r.pos - tp.pos) < 1 : 
-        r.color = color.red
-        rp.color = color.green
+    if mag(v.pos - ip.pos) < 1 : 
+        v.color = color.red
+        vp.color = color.green
+    if mag(o.pos - np.pos) < 1 : 
+        o.color = color.red
+        op.color = color.green
+        
+        
