@@ -62,18 +62,18 @@ while True :
     rate(100)
     k = keysdown()
     if 'd' in k :
-        o.pos.x = o.pos.x + 0.1
+        r.pos.x = r.pos.x + 0.1
         #boxes[ix].pos.x = boxes[ix].pos.x + 0.1
     if 'a' in k :
-        o.pos.x = o.pos.x - 0.1
+        r.pos.x = r.pos.x - 0.1
     if 'w' in k :
-        o.pos.y = o.pos.y + 0.1
+        r.pos.y = r.pos.y + 0.1
     if 's' in k :
-        o.pos.y = o.pos.y - 0.1
+        r.pos.y = r.pos.y - 0.1
     if 'q' in k : 
-        o.pos.z = o.pos.z + 0.1
+        r.pos.z = r.pos.z + 0.1
     if 'e' in k : 
-        o.pos.z = o.pos.z - 0.1
+        r.pos.z = r.pos.z - 0.1
 #    if ' ' in k :
         rate(10)
         ix = (ix + 1) % 3
@@ -86,5 +86,6 @@ while True :
     if mag(o.pos - np.pos) < 1 : 
         o.color = color.red
         op.color = color.green
+        
         
         
