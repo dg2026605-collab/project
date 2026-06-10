@@ -34,13 +34,27 @@ l = randomlist[2]
 
 if l == 1:
     r.color = color.cyan
-    if m == 2:
-        
+if l == 2:
+    v.color = color.orange
+if l == 3:
+    o.color = color.green
 if p == 1:
-    v.color = color.cyan
+    r.color = color.cyan
+if p == 2:
+    v.color = color.orange   
+if p == 3:
+    o.color = color.green
 if m == 1:
-    o.color = color.cyan
-
+    r.color = color.cyan
+if m == 2:
+    v.color = color.orange  
+if m == 3:
+    o.color = color.green
+print(randomlist)
+    
+rc = r.color
+vc = v.color
+oc = o.color
 
 ix = 0
     
@@ -62,7 +76,7 @@ box(pos = vec(0,-1.89,0),size = vec(5,0.1,1))
 
 while True :
     rate(100)
-    k = keysdown()
+    k = keysdown()    
     if 'd' in k :
         r.pos.x = r.pos.x + 0.1
         #boxes[ix].pos.x = boxes[ix].pos.x + 0.1
