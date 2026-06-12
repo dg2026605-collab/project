@@ -1,222 +1,294 @@
-# ==========================
-# TETRIS (GlowScript VPython)
-# ==========================
+GlowScript 3.2 VPython
 
 from random import choice
 
-scene.width = 500
+scene.width = 900
 scene.height = 700
 scene.background = color.black
-scene.title = "Tetris"
+scene.center = vec(5,10,0)
+scene.range = 14
 
 ROWS = 20
 COLS = 10
-SIZE = 1
 
-board = [[None for c in range(COLS)] for r in range(ROWS)]
-
-SHAPES = [
-    [[1,1,1,1]],
-
-    [[1,1],
-     [1,1]],
-
-    [[0,1,0],
-     [1,1,1]],
-
-    [[1,0,0],
-     [1,1,1]],
-
-    [[0,0,1],
-     [1,1,1]],
-
-    [[0,1,1],
-     [1,1,0]],
-
-    [[1,1,0],
-     [0,1,1]]
-]
-
-COLORS = [
-    color.cyan,
-    color.yellow,
-    color.magenta,
-    color.blue,
-    color.orange,
-    color.green,
-    color.red
-]
-
-def rotate(shape):
-    h = len(shape)
-    w = len(shape[0])
-
-    result = []
-    for x in range(w):
-        row = []
-        for y in range(h-1,-1,-1):
-            row.append(shape[y][x])
-        result.append(row)
-
-    return result
-
-class Piece:
-    def __init__(self):
-        idx = int(random()*len(SHAPES))
-        self.shape = SHAPES[idx]
-        self.color = COLORS[idx]
-        self.x = COLS//2 - 2
-        self.y = 0
-
-current = Piece()
-
-def valid(piece, dx=0, dy=0, newshape=None):
-    shape = piece.shape if newshape is None else newshape
-
-    for r in range(len(shape)):
-        for c in range(len(shape[0])):
-            if shape[r][c]:
-
-                nx = piece.x + c + dx
-                ny = piece.y + r + dy
-
-                if nx < 0 or nx >= COLS:
-                    return False
-
-                if ny >= ROWS:
-                    return False
-
-                if ny >= 0 and board[ny][nx]:
-                    return False
-
-    return True
-
-def lock_piece(piece):
-
-    for r in range(len(piece.shape)):
-        for c in range(len(piece.shape[0])):
-            if piece.shape[r][c]:
-
-                x = piece.x + c
-                y = piece.y + r
-
-                board[y][x] = piece.color
-
-    clear_lines()
-
-def clear_lines():
-
-    global board
-
-    newboard = []
-
-    removed = 0
-
-    for row in board:
-        full = True
-
-        for cell in row:
-            if cell is None:
-                full = False
-
-        if full:
-            removed += 1
-        else:
-            newboard.append(row)
-
-    while len(newboard) < ROWS:
-        newboard.insert(0,[None for i in range(COLS)])
-
-    board = newboard
+board = []
 
 cells = []
 
+score = 0
+
+score_label = label(
+    pos=vec(15,18,0),
+    text='Score: 0',
+    box=False,
+    height=20,
+    color=color.white
+)
+
+# =========================
+# SHAPES
+# =========================
+
+SHAPES = {
+
+'I':[[-1,0],[0,0],[1,0],[2,0]],
+
+'O':[[0,0],[1,0],[0,1],[1,1]],
+
+'T':[[-1,0],[0,0],[1,0],[0,1]],
+
+'S':[[0,0],[1,0],[-1,1],[0,1]],
+
+'Z':[[-1,0],[0,0],[0,1],[1,1]],
+
+'J':[[-1,1],[-1,0],[0,0],[1,0]],
+
+'L':[[1,1],[-1,0],[0,0],[1,0]]
+
+}
+
+COLORS = {
+'I':color.cyan,
+'O':color.yellow,
+'T':color.magenta,
+'S':color.green,
+'Z':color.red,
+'J':color.blue,
+'L':color.orange
+}
+
+# =========================
+# GRID
+# =========================
+
 for r in range(ROWS):
-    row = []
+
+    brow = []
+    crow = []
 
     for c in range(COLS):
-        b = box(
-            pos=vector(c-COLS/2, ROWS/2-r, 0),
-            size=vector(0.95,0.95,0.2),
+
+        brow.append(None)
+
+        cell = box(
+            pos=vec(c,ROWS-r-1,0),
+            size=vec(0.9,0.9,0.1),
             color=color.gray(0.15)
         )
-        row.append(b)
 
-    cells.append(row)
+        crow.append(cell)
 
-def draw():
+    board.append(brow)
+    cells.append(crow)
 
-    for r in range(ROWS):
+# =========================
+# PIECE
+# =========================
+
+current = None
+current_boxes = []
+
+def draw_piece():
+
+    for i in range(4):
+
+        bx = current['blocks'][i][0] + current['x']
+        by = current['blocks'][i][1] + current['y']
+
+        current_boxes[i].pos = vec(bx,by,0)
+
+def valid(nx,ny,blocks):
+
+    for b in blocks:
+
+        x = b[0] + nx
+        y = b[1] + ny
+
+        if x < 0 or x >= COLS:
+            return False
+
+        if y < 0:
+            return False
+
+        if y < ROWS:
+            if board[ROWS-y-1][x] != None:
+                return False
+
+    return True
+
+def spawn():
+
+    global current
+    global current_boxes
+
+    name = choice(list(SHAPES.keys()))
+
+    blocks = []
+
+    for b in SHAPES[name]:
+        blocks.append([b[0],b[1]])
+
+    current = {
+        'name':name,
+        'blocks':blocks,
+        'x':5,
+        'y':18,
+        'color':COLORS[name]
+    }
+
+    current_boxes = []
+
+    for i in range(4):
+
+        bb = box(
+            size=vec(0.9,0.9,0.2),
+            color=current['color']
+        )
+
+        current_boxes.append(bb)
+
+    draw_piece()
+
+def freeze():
+
+    global score
+
+    for i in range(4):
+
+        x = current['blocks'][i][0] + current['x']
+        y = current['blocks'][i][1] + current['y']
+
+        if y >= ROWS:
+            continue
+
+        board[ROWS-y-1][x] = current['color']
+        cells[ROWS-y-1][x].color = current['color']
+
+    clear_lines()
+
+    spawn()
+
+def clear_lines():
+
+    global score
+
+    r = ROWS-1
+
+    while r >= 0:
+
+        full = True
+
         for c in range(COLS):
 
-            if board[r][c]:
-                cells[r][c].color = board[r][c]
-            else:
+            if board[r][c] == None:
+                full = False
+
+        if full:
+
+            score += 100
+
+            score_label.text = 'Score: ' + str(score)
+
+            for rr in range(r,0,-1):
+
+                for c in range(COLS):
+
+                    board[rr][c] = board[rr-1][c]
+
+            for c in range(COLS):
+                board[0][c] = None
+
+        else:
+            r -= 1
+
+    for r in range(ROWS):
+
+        for c in range(COLS):
+
+            if board[r][c] == None:
                 cells[r][c].color = color.gray(0.15)
+            else:
+                cells[r][c].color = board[r][c]
 
-    for r in range(len(current.shape)):
-        for c in range(len(current.shape[0])):
+def move(dx,dy):
 
-            if current.shape[r][c]:
+    nx = current['x'] + dx
+    ny = current['y'] + dy
 
-                x = current.x + c
-                y = current.y + r
+    if valid(nx,ny,current['blocks']):
 
-                if 0 <= y < ROWS and 0 <= x < COLS:
-                    cells[y][x].color = current.color
+        current['x'] = nx
+        current['y'] = ny
+
+        draw_piece()
+
+        return True
+
+    else:
+
+        if dy < 0:
+            freeze()
+
+        return False
+
+def rotate_piece():
+
+    if current['name'] == 'O':
+        return
+
+    rotated = []
+
+    for b in current['blocks']:
+
+        rx = -b[1]
+        ry = b[0]
+
+        rotated.append([rx,ry])
+
+    if valid(current['x'],current['y'],rotated):
+
+        current['blocks'] = rotated
+
+        draw_piece()
+
+def hard_drop():
+
+    while move(0,-1):
+        pass
 
 def keydown(evt):
 
-    global current
-
     k = evt.key
 
-    if k == "left":
-        if valid(current,dx=-1):
-            current.x -= 1
+    if k == 'left':
+        move(-1,0)
 
-    elif k == "right":
-        if valid(current,dx=1):
-            current.x += 1
+    elif k == 'right':
+        move(1,0)
 
-    elif k == "down":
-        if valid(current,dy=1):
-            current.y += 1
+    elif k == 'down':
+        move(0,-1)
 
-    elif k == "up":
+    elif k == 'up':
+        rotate_piece()
 
-        rot = rotate(current.shape)
+    elif k == ' ':
+        hard_drop()
 
-        if valid(current,newshape=rot):
-            current.shape = rot
+scene.bind('keydown',keydown)
 
-scene.bind("keydown", keydown)
+spawn()
 
 timer = 0
 
 while True:
 
-    rate(10)
+    rate(60)
 
-    timer += 1
+    timer += 0.02
 
-    if timer >= 5:
+    if timer > 0.5:
 
         timer = 0
 
-        if valid(current,dy=1):
-            current.y += 1
-
-        else:
-
-            lock_piece(current)
-            current = Piece()
-
-            if not valid(current):
-                scene.title = "GAME OVER"
-                break
-
-    draw()
-                
-            clear_lines()
-            spawn_block()
+        move(0,-1)
