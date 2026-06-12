@@ -1,158 +1,222 @@
-# 1. 화면 및 게임판 설정
-scene.title = "3D Glowscript Tetris"
+# ==========================
+# TETRIS (GlowScript VPython)
+# ==========================
+
+from random import choice
+
 scene.width = 500
-scene.height = 600
-scene.autoscale = False
-scene.center = vec(4.5, 9, 0)
+scene.height = 700
+scene.background = color.black
+scene.title = "Tetris"
 
-# 게임판 크기 (가로 10, 세로 20)
-WIDTH = 10
-HEIGHT = 20
+ROWS = 20
+COLS = 10
+SIZE = 1
 
-# 테두리 벽 그리기
-box(pos=vec(-0.6, HEIGHT/2 - 0.5, 0), size=vec(0.2, HEIGHT, 1), color=color.gray(0.5))
-box(pos=vec(WIDTH - 0.4, HEIGHT/2 - 0.5, 0), size=vec(0.2, HEIGHT, 1), color=color.gray(0.5))
-box(pos=vec(WIDTH/2 - 0.5, -0.6, 0), size=vec(WIDTH, 0.2, 1), color=color.gray(0.5))
+board = [[None for c in range(COLS)] for r in range(ROWS)]
 
-# 격자판 데이터 초기화 (0은 빈 공간, 객체가 들어오면 box 객체 저장)
-grid = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
-
-# 2. 테트리스 블록(테트로미노) 모양 정의 (상대 좌표)
 SHAPES = [
-    [vec(0,0,0), vec(1,0,0), vec(2,0,0), vec(3,0,0)], # I
-    [vec(0,0,0), vec(1,0,0), vec(0,1,0), vec(1,1,0)], # O
-    [vec(1,0,0), vec(2,0,0), vec(0,1,0), vec(1,1,0)], # Z
-    [vec(0,0,0), vec(1,0,0), vec(1,1,0), vec(2,1,0)], # S
-    [vec(0,0,0), vec(1,0,0), vec(2,0,0), vec(0,1,0)], # J
-    [vec(0,0,0), vec(1,0,0), vec(2,0,0), vec(2,1,0)], # L
-    [vec(0,0,0), vec(1,0,0), vec(2,0,0), vec(1,1,0)]  # T
+    [[1,1,1,1]],
+
+    [[1,1],
+     [1,1]],
+
+    [[0,1,0],
+     [1,1,1]],
+
+    [[1,0,0],
+     [1,1,1]],
+
+    [[0,0,1],
+     [1,1,1]],
+
+    [[0,1,1],
+     [1,1,0]],
+
+    [[1,1,0],
+     [0,1,1]]
 ]
-COLORS = [color.cyan, color.yellow, color.red, color.green, color.blue, color.orange, color.magenta]
 
-current_blocks = []
-current_pos = vec(0,0,0)
-current_shape_idx = 0
+COLORS = [
+    color.cyan,
+    color.yellow,
+    color.magenta,
+    color.blue,
+    color.orange,
+    color.green,
+    color.red
+]
 
-def spawn_block():
-    global current_blocks, current_pos, current_shape_idx
-    current_shape_idx = int(random() * len(SHAPES))
-    shape = SHAPES[current_shape_idx]
-    col = COLORS[current_shape_idx]
-    
-    current_pos = vec(3, HEIGHT - 2, 0)
-    current_blocks = []
-    
-    for p in shape:
-        b = box(pos=current_pos + p, size=vec(0.95, 0.95, 0.95), color=col)
-        current_blocks.append(b)
+def rotate(shape):
+    h = len(shape)
+    w = len(shape[0])
 
-# 3. 충돌 검사 함수
-def check_collision(offset, check_blocks=None):
-    blocks_to_check = check_blocks if check_blocks else current_blocks
-    for b in blocks_to_check:
-        next_pos = b.pos + offset if check_blocks is None else b.pos
-        x = int(round(next_pos.x))
-        y = int(round(next_pos.y))
-        
-        if x < 0 or x >= WIDTH or y < 0:
-            return True
-        if y < HEIGHT and grid[y][x] != 0:
-            return True
-    return False
+    result = []
+    for x in range(w):
+        row = []
+        for y in range(h-1,-1,-1):
+            row.append(shape[y][x])
+        result.append(row)
 
-# 4. 블록 조작 (키보드 이벤트)
-def move_blocks(offset):
-    if not check_collision(offset):
-        for b in current_blocks:
-            b.pos += offset
-        current_pos.x += offset.x
-        current_pos.y += offset.y
+    return result
 
-def rotate_blocks():
-    if current_shape_idx == 1: return # O 피봇은 회전 안 함
-    
-    # 회전 중심 설정 (두 번째 블록 기준)
-    center = current_blocks[1].pos
-    temp_positions = []
-    
-    for b in current_blocks:
-        # 90도 회전 공식: (x, y) -> (-y, x) 기준점 중심
-        rx = -(b.pos.y - center.y) + center.x
-        ry = (b.pos.x - center.x) + center.y
-        temp_positions.append(vec(round(rx), round(ry), 0))
-        
-    # 충돌 안 나면 회전 적용
-    can_rotate = True
-    for p in temp_positions:
-        x, y = int(p.x), int(p.y)
-        if x < 0 or x >= WIDTH or y < 0: can_rotate = False; break
-        if y < HEIGHT and grid[y][x] != 0: can_rotate = False; break
-        
-    if can_rotate:
-        for i in range(len(current_blocks)):
-            current_blocks[i].pos = temp_positions[i]
+class Piece:
+    def __init__(self):
+        idx = int(random()*len(SHAPES))
+        self.shape = SHAPES[idx]
+        self.color = COLORS[idx]
+        self.x = COLS//2 - 2
+        self.y = 0
 
-def key_input(evt):
-    k = evt.key
-    if k == 'left': move_blocks(vec(-1, 0, 0))
-    elif k == 'right': move_blocks(vec(1, 0, 0))
-    elif k == 'down': move_blocks(vec(0, -1, 0))
-    elif k == 'up': rotate_blocks()
+current = Piece()
 
-scene.bind('keydown', key_input)
+def valid(piece, dx=0, dy=0, newshape=None):
+    shape = piece.shape if newshape is None else newshape
 
-# 5. 줄 지우기 함수
+    for r in range(len(shape)):
+        for c in range(len(shape[0])):
+            if shape[r][c]:
+
+                nx = piece.x + c + dx
+                ny = piece.y + r + dy
+
+                if nx < 0 or nx >= COLS:
+                    return False
+
+                if ny >= ROWS:
+                    return False
+
+                if ny >= 0 and board[ny][nx]:
+                    return False
+
+    return True
+
+def lock_piece(piece):
+
+    for r in range(len(piece.shape)):
+        for c in range(len(piece.shape[0])):
+            if piece.shape[r][c]:
+
+                x = piece.x + c
+                y = piece.y + r
+
+                board[y][x] = piece.color
+
+    clear_lines()
+
 def clear_lines():
-    global grid
-    y = 0
-    while y < HEIGHT:
-        if 0 not in grid[y]: # 한 줄이 꽉 찼다면
-            # 해당 줄 블록 제거
-            for x in range(WIDTH):
-                grid[y][x].visible = False
-                del grid[y][x]
-            # 위에 있던 블록들 아래로 한 칸씩 내리기
-            grid.pop(y)
-            grid.append([0 for _ in range(WIDTH)])
-            
-            # 실제 3D 오브젝트 위치도 하강
-            for ty in range(y, HEIGHT - 1):
-                for tx in range(WIDTH):
-                    if grid[ty][tx] != 0:
-                        grid[ty][tx].pos.y -= 1
-            # 줄이 내려왔으니 현재 y층을 다시 검사
-            continue
-        y += 1
 
-# 게임 시작
-spawn_block()
-fall_clock = 0
-fall_speed = 0.5 # 블록이 떨어지는 속도 (초)
+    global board
 
-# 6. 메인 게임 루프
-while True:
-    rate(60) # 초당 60프레임 구동
-    fall_clock += 1/60
-    
-    if fall_clock >= fall_speed:
-        fall_clock = 0
-        # 아래로 떨어질 수 있는지 확인
-        if not check_collision(vec(0, -1, 0)):
-            move_blocks(vec(0, -1, 0))
+    newboard = []
+
+    removed = 0
+
+    for row in board:
+        full = True
+
+        for cell in row:
+            if cell is None:
+                full = False
+
+        if full:
+            removed += 1
         else:
-            # 바닥이나 다른 블록에 닿았을 때 고정
-            game_over = False
-            for b in current_blocks:
-                x = int(round(b.pos.x))
-                y = int(round(b.pos.y))
-                if y >= HEIGHT - 1:
-                    game_over = True
-                else:
-                    grid[y][x] = b
-            
-            if game_over:
-                label(pos=vec(WIDTH/2, HEIGHT/2, 2), text="GAME OVER", height=30, color=color.red)
+            newboard.append(row)
+
+    while len(newboard) < ROWS:
+        newboard.insert(0,[None for i in range(COLS)])
+
+    board = newboard
+
+cells = []
+
+for r in range(ROWS):
+    row = []
+
+    for c in range(COLS):
+        b = box(
+            pos=vector(c-COLS/2, ROWS/2-r, 0),
+            size=vector(0.95,0.95,0.2),
+            color=color.gray(0.15)
+        )
+        row.append(b)
+
+    cells.append(row)
+
+def draw():
+
+    for r in range(ROWS):
+        for c in range(COLS):
+
+            if board[r][c]:
+                cells[r][c].color = board[r][c]
+            else:
+                cells[r][c].color = color.gray(0.15)
+
+    for r in range(len(current.shape)):
+        for c in range(len(current.shape[0])):
+
+            if current.shape[r][c]:
+
+                x = current.x + c
+                y = current.y + r
+
+                if 0 <= y < ROWS and 0 <= x < COLS:
+                    cells[y][x].color = current.color
+
+def keydown(evt):
+
+    global current
+
+    k = evt.key
+
+    if k == "left":
+        if valid(current,dx=-1):
+            current.x -= 1
+
+    elif k == "right":
+        if valid(current,dx=1):
+            current.x += 1
+
+    elif k == "down":
+        if valid(current,dy=1):
+            current.y += 1
+
+    elif k == "up":
+
+        rot = rotate(current.shape)
+
+        if valid(current,newshape=rot):
+            current.shape = rot
+
+scene.bind("keydown", keydown)
+
+timer = 0
+
+while True:
+
+    rate(10)
+
+    timer += 1
+
+    if timer >= 5:
+
+        timer = 0
+
+        if valid(current,dy=1):
+            current.y += 1
+
+        else:
+
+            lock_piece(current)
+            current = Piece()
+
+            if not valid(current):
+                scene.title = "GAME OVER"
                 break
+
+    draw()
                 
             clear_lines()
             spawn_block()
